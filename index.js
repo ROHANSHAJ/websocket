@@ -1,7 +1,5 @@
-const WebSocket = require("ws"); 
-// Use the environment port if available, otherwise default to 80
-const port = process.env.PORT || 80;
-const wss = new WebSocket.Server({ port });
+const WebSocket = require("ws");
+const wss = new WebSocket.Server({ port: 5500 });
 
 wss.on("connection", ws => {
     console.log(`New client connected, Total clients: ${wss.clients.size}`);
@@ -14,7 +12,7 @@ wss.on("connection", ws => {
         console.log(`Received from client: ${message}`);
         wss.clients.forEach(client => {
             if (client.readyState === WebSocket.OPEN) {
-                client.send(`Server response: You sent -> ${message}`);
+                client.send(`server response you sent ->: ${message}`);
             }
         });
     });
@@ -26,23 +24,13 @@ wss.on("connection", ws => {
                 client.send(`Total clients in server: ${wss.clients.size}`);
             }
         });
-    }, 30000);
+    },30000);
 
     // Handle client disconnection
     ws.on("close", () => {
         clearInterval(interval);
         console.log(`Client disconnected, Total clients: ${wss.clients.size}`);
     });
-
-    // Handle unexpected errors
-    ws.on("error", (err) => {
-        console.error("WebSocket error:", err);
-    });
 });
 
-// Handle WebSocket server errors
-wss.on("error", (err) => {
-    console.error("WebSocket server error:", err);
-});
-
-console.log(`WebSocket server running on ws://localhost:${port}`);
+console.log("WebSocket server running on ws://localhost:5500");
