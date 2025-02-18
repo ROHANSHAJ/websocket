@@ -45,7 +45,15 @@
         }
     </style>
     <script>
-        let socket = new WebSocket("ws://localhost:8080");
+        // If your WebSocket server is on the same host and default port (80 or 443), you can use:
+        let socket = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.hostname}`);
+
+// Or if your WebSocket server uses a specific port provided in the URL (or an environment variable injected at build time),
+// you can build the URL dynamically. For example, if the port is known from a global variable `WS_PORT`:
+        let wsPort = window.WS_PORT || ''; // e.g., "8080" if needed, or empty for default ports
+        let portSegment = wsPort ? `:${wsPort}` : '';
+        let socket = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.hostname}${portSegment}`);
+
 
         socket.onopen = function(event) {
             displayMessage("Connected to WebSocket server.", "server");
