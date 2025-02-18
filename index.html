@@ -1,104 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebSocket Client</title>
-    <style>
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 50px;
-        }
-        #messages {
-            border: 1px solid #ddd;
-            padding: 10px;
-            width: 300px;
-            height: 300px;
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
-        .message {
-            margin: 5px;
-            padding: 8px 12px;
-            border-radius: 15px;
-            max-width: 80%;
-        }
-        .client-message {
-            background-color: aliceblue;
-            color: rgb(33, 24, 152);
-            text-align: right;
-            align-self: flex-end;
-        }
-        .server-message {
-            background-color: lightgreen;
-            color: rgb(24, 56, 152);
-            text-align: left;
-            align-self: flex-start;
-        }
-        .message-container {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 5px;
-        }
-    </style>
-    <script>
-        // If your WebSocket server is on the same host and default port (80 or 443), you can use:
-        let socket = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.hostname}`);
+const WebSocket = require("ws");
+const wss = new WebSocket.Server({ port: 5500 });
 
-// Or if your WebSocket server uses a specific port provided in the URL (or an environment variable injected at build time),
-// you can build the URL dynamically. For example, if the port is known from a global variable `WS_PORT`:
-        let wsPort = window.WS_PORT || ''; // e.g., "8080" if needed, or empty for default ports
-        let portSegment = wsPort ? `:${wsPort}` : '';
-        let socket = new WebSocket(`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.hostname}${portSegment}`);
+wss.on("connection", ws => {
+    console.log(`New client connected, Total clients: ${wss.clients.size}`);
 
+    // Send welcome message
+    ws.send("Welcome to WebSocket server");
 
-        socket.onopen = function(event) {
-            displayMessage("Connected to WebSocket server.", "server");
-        };
-
-        socket.onmessage = function(event) {
-            displayMessage(event.data, "server");
-        };
-
-        socket.onerror = function(event) {
-            console.error("WebSocket error:", event);
-        };
-
-        socket.onclose = function(event) {
-            displayMessage("Disconnected from WebSocket server.", "server");
-        };
-
-        function displayMessage(message, sender) {
-            const messageContainer = document.getElementById("messages");
-            const messageElement = document.createElement("div");
-            messageElement.classList.add("message", sender === "client" ? "client-message" : "server-message");
-            messageElement.textContent = message;
-
-            const messageWrapper = document.createElement("div");
-            messageWrapper.classList.add("message-container");
-            messageWrapper.appendChild(messageElement);
-
-            messageContainer.appendChild(messageWrapper);
-            messageContainer.scrollTop = messageContainer.scrollHeight;
-        }
-
-        function sendMessage() {
-            let message = document.getElementById("messageInput").value;
-            if (message.trim() !== "") {
-                socket.send(message);
-                displayMessage(message, "client");
-                document.getElementById("messageInput").value = "";
+    // Broadcast received messages to all connected clients
+    ws.on("message", (message) => {
+        console.log(`Received from client: ${message}`);
+        wss.clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(`server response you sent ->: ${message}`);
             }
-        }
-    </script>
-</head>
-<body>
-    <h1>WebSocket Chat Client</h1>
-    <div id="messages"></div>
-    <input type="text" id="messageInput" placeholder="Enter message" />
-    <button onclick="sendMessage()">Send</button> 
-</body>
-</html>
+        });
+    });
+
+    // Periodic client count update
+    const interval = setInterval(() => {
+        wss.clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(`Total clients in server: ${wss.clients.size}`);
+            }
+        });
+    },30000);
+
+    // Handle client disconnection
+    ws.on("close", () => {
+        clearInterval(interval);
+        console.log(`Client disconnected, Total clients: ${wss.clients.size}`);
+    });
+});
+
+console.log("WebSocket server running on ws://localhost:5500");
