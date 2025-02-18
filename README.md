@@ -17,14 +17,6 @@ This is a simple WebSocket-based chat application that runs locally. It consists
 
 This is a simple WebSocket-based chat application that runs locally. It consists of a Node.js WebSocket server and an HTML/JavaScript client. The server broadcasts messages to all connected clients and periodically sends the current number of connected clients.
 
-## Table of Contents
-
-- [Features](#features)
-- [Prerequisites](#prerequisites)
-- [Usage](#usage)
-- [Project Structure](#project-structure)
-- [Troubleshooting](#troubleshooting)
-- [License](#license)
 
 ## Features
 
