@@ -14,12 +14,6 @@ This is a simple WebSocket-based chat application that runs locally. It consists
 - **Node.js:** Make sure Node.js is installed on your machine. You can download it from [nodejs.org](https://nodejs.org/).
 - **Web Browser:** A modern browser (Chrome, Firefox, etc.) to run the client.
 
-## Installation
-
-1. **Clone or Download the Repository:**
-
-   ```bash
-   git clone # WebSocket Chat Application
 
 This is a simple WebSocket-based chat application that runs locally. It consists of a Node.js WebSocket server and an HTML/JavaScript client. The server broadcasts messages to all connected clients and periodically sends the current number of connected clients.
 
